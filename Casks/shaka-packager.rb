@@ -7,6 +7,12 @@ cask "shaka-packager" do
   desc "Packager for DASH and HLS streaming"
   homepage "https://github.com/shaka-project/shaka-packager"
 
+  livecheck do
+    url "https://github.com/shaka-project/shaka-packager/releases"
+    strategy :page_match
+    regex(/href=.*?\/v?(\d+(?:\.\d+)+)\/packager-osx-arm64/i)
+  end
+
   binary "packager-osx-arm64", target: "packager"
 
   caveats <<~EOS
