@@ -2,7 +2,7 @@ class ShakaPackager < Formula
   desc "Packager for DASH and HLS streaming"
   homepage "https://github.com/shaka-project/shaka-packager"
   url "https://github.com/shaka-project/shaka-packager/archive/refs/tags/v3.4.0.tar.gz"
-  sha256 "6b32b88a69f312dbfc5fdaf11f3ddbf35108f982e7305f9db324e8ea2b853f70"
+  sha256 "93d9614ce181ef42e596c65d75fec6c9152b7f3308d1cafcaed006e79a1aeb1a"
   license "BSD 3 clause"
 
   depends_on "cmake" => :build
