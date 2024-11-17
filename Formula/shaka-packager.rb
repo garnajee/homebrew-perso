@@ -3,7 +3,7 @@ class ShakaPackager < Formula
   homepage "https://github.com/shaka-project/shaka-packager"
   url "https://github.com/shaka-project/shaka-packager/archive/v3.4.0.tar.gz"
   sha256 "93d9614ce181ef42e596c65d75fec6c9152b7f3308d1cafcaed006e79a1aeb1a"
-  license "Apache-2.0"
+  license "BSD 3 clause"
 
   depends_on "cmake" => :build
   depends_on "ninja" => :build
