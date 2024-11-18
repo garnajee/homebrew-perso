@@ -10,9 +10,9 @@ class ShakaPackager < Formula
 
   def install
     mkdir "build" do
-      system "cmake", "..", "-G", "Ninja", "-DCMAKE_BUILD_TYPE=Release", *std_cmake_args
-      system "ninja"
-      system "ninja", "install"
+      system "cmake", "-B", "build", "-G", "Ninja", "-DCMAKE_BUILD_TYPE=Release", *std_cmake_args
+      system "cmake", "--build", "build", "--parallel"
+      system "cmake", "--install", "build", "--strip", "--prefix=#{prefix}"
     end
   end
 
