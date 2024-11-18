@@ -31,9 +31,9 @@ jobs:
 
     - name: Update Cask file
       run: |
-        sed -i "s/version \".*\"/version \"${{ steps.get_version.outputs.version }}\"/" Casks/shaka-packager.rb
+        sed -i "s/version \".*\"/version \"${{ steps.get_version.outputs.version }}\"/" Casks/s/shaka-packager.rb
         latest_sha256=$(curl -L "https://github.com/shaka-project/shaka-packager/releases/download/v${{ steps.get_version.outputs.version }}/packager-osx-arm64" | shasum -a 256 | awk '{ print $1 }')
-        sed -i "s/sha256 \".*\"/sha256 \"$latest_sha256\"/" Casks/shaka-packager.rb
+        sed -i "s/sha256 \".*\"/sha256 \"$latest_sha256\"/" Casks/s/shaka-packager.rb
 
     - name: Check for changes
       run: |
