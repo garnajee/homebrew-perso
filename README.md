@@ -17,6 +17,8 @@ To install:
 
 `brew install --build-from-source Formula/s/shaka-packager.rb`
 
+**(not working on my side...)**
+
 ## Tests
 
 To test installation:
