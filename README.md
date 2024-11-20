@@ -1,6 +1,10 @@
-# Shaka Packager for Homebrew
+# Lists of brews in this repo
 
-## Cask
+- [`shaka-packager`](https://github.com/shaka-project/shaka-packager): Casks: working ; Formula: build not working.
+- [`N_m3u8DL-RE`](https://github.com/nilaoda/N_m3u8DL-RE): Cask: --- ; Formula: ---
+
+## Shaka Packager
+### Cask
 
 ![Update Shaka Packager Cask](https://github.com/garnajee/homebrew-shaka-packager/actions/workflows/update-cask.yml/badge.svg)
 ![Latest Shaka Packager Version](https://img.shields.io/github/v/release/shaka-project/shaka-packager)
@@ -13,13 +17,13 @@ To install:
 
 `brew install --cask Cask/s/shaka-packager.rb`
 
-## Formula
+### Formula
 
 `brew install --build-from-source Formula/s/shaka-packager.rb`
 
 **(not working on my side...)**
 
-## Tests
+### Tests
 
 To test installation:
 
@@ -28,4 +32,9 @@ packager --help
 packager --version
 ```
 
-Official shaka-packager repository accessible [here](https://github.com/shaka-project/shaka-packager).
+***
+
+## N\_m3u8DL-RE
+### Cask
+
+### Formula
