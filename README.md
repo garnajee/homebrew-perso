@@ -37,4 +37,8 @@ packager --version
 ## N\_m3u8DL-RE
 ### Cask
 
+`brew install --cask garnajee/my-homebrews/Casks/n/nm3u8dl-re`
+
 ### Formula
+
+`brew install garnajee/my-homebrews/Casks/n/nm3u8dl-re`
