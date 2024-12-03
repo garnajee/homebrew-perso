@@ -15,11 +15,11 @@ It will install the latest `packager-osx-arm64` binary.
 
 To install:
 
-`brew install --cask garnajee/my-homebrews/Casks/s/shaka-packager.rb`
+`brew install --cask garnajee/perso/shaka-packager`
 
 ### Formula
 
-`brew install --build-from-source garnajee/my-homebrews/Formula/s/shaka-packager.rb`
+`brew install --build-from-source garnajee/perso/shaka-packager`
 
 **(not working on my side...)**
 
@@ -37,9 +37,9 @@ packager --version
 ## N\_m3u8DL-RE
 ### Cask
 
-`brew install --cask garnajee/my-homebrews/Casks/n/nm3u8dl-re`
+`brew install --cask garnajee/perso/nm3u8dl-re`
 
 ### Formula
 
-`brew install garnajee/my-homebrews/Formula/n/nm3u8dl-re`
+`brew install garnajee/perso/nm3u8dl-re`
 
