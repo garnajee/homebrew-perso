@@ -9,6 +9,7 @@ class ShakaPackager < Formula
   depends_on "ninja" => :build
 
   def install
+    system "git", "submodule", "update", "--init", "--recursive"
     system "cmake", "-S", ".", "-B", "build", "-G", "Ninja",
                     "-DCMAKE_BUILD_TYPE=Release",
                     "-DBUILD_TESTING=OFF",
