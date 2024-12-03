@@ -2,8 +2,8 @@
 
 | Brew               | Version  | Cask | Formula | Brew Auto Update |
 |:------------------:|:--------:|:-----------:|:--------------:|:------------------:|
-| [**Shaka Packager**](#shaka-packager-installation) | ![Shaka Packager Version](https://img.shields.io/github/v/release/shaka-project/shaka-packager) | ✅ | 🛠️ | ![Cask](https://github.com/garnajee/homebrew-shaka-packager/actions/workflows/update-shaka-packager-cask.yml/badge.svg) |
-| [**n_m3u8dl-re**](#nm3u8dl-re-installation)    | ![n_m3u8dl-re Version](https://img.shields.io/github/v/release/nilaoda/N_m3u8DL-RE) | ✅ | 🛠️ | ❌ |
+| [**Shaka Packager**](#shaka-packager) | ![Shaka Packager Version](https://img.shields.io/github/v/release/shaka-project/shaka-packager) | ✅ | 🛠️ | ![Cask](https://github.com/garnajee/homebrew-perso/actions/workflows/update-shaka-packager-cask.yml/badge.svg) |
+| [**n_m3u8dl-re**](#nm3u8dl-re)    | ![n_m3u8dl-re Version](https://img.shields.io/github/v/release/nilaoda/N_m3u8DL-RE) | ✅ | 🛠️ | ![Cask](![Update nm3u8dl-re Cask](https://github.com/garnajee/homebrew-perso/actions/workflows/update-nm3u8dl-re-cask.yml/badge.svg) |
 
 ---
 
