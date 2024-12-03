@@ -1,0 +1,54 @@
+name: Update nm3u8dl-re Cask
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Exécuter tous les jours à minuit
+  workflow_dispatch: # Permet d'exécuter manuellement
+
+jobs:
+  update-cask:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.3'
+
+    - name: Install Homebrew
+      run: |
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+    - name: Check latest release version
+      id: get_version
+      run: |
+        latest_version=$(curl --silent "https://api.github.com/repos/nilaoda/N_m3u8DL-RE/releases/latest" | jq -r .tag_name | sed 's/^v//')
+        echo "Latest version is $latest_version"
+        echo "LATEST_VERSION=$latest_version" >> $GITHUB_ENV
+
+    - name: Update Cask file
+      run: |
+        sed -i "s/version \".*\"/version \"${{ env.LATEST_VERSION }}\"/" Casks/nm3u8dl-re.rb
+        latest_sha256=$(curl -L "https://github.com/nilaoda/N_m3u8DL-RE/releases/download/v${{ env.LATEST_VERSION }}/N_m3u8DL-RE_v${{ env.LATEST_VERSION }}_osx-arm64.tar.gz" | shasum -a 256 | awk '{ print $1 }')
+        sed -i "s/sha256 \".*\"/sha256 \"$latest_sha256\"/" Casks/nm3u8dl-re.rb
+        sed -i "s|url \".*\"|url \"https://github.com/nilaoda/N_m3u8DL-RE/releases/download/v${{ env.LATEST_VERSION }}/N_m3u8DL-RE_v${{ env.LATEST_VERSION }}_osx-arm64.tar.gz\"|" Casks/nm3u8dl-re.rb
+
+    - name: Check for changes
+      run: |
+        git status
+        git diff
+
+    - name: Commit and push changes
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+        if ! git diff --quiet; then
+          git commit -am "Update nm3u8dl-re to version ${{ env.LATEST_VERSION }}"
+          git push
+        else
+          echo "No changes detected, skipping commit."
+        fi
+
