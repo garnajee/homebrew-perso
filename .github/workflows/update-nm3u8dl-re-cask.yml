@@ -38,10 +38,10 @@ jobs:
       run: |
         sed -i "s/version \".*\"/version \"${{ env.LATEST_VERSION }}\"/" Casks/nm3u8dl-re.rb
 
-        latest_sha256=$(curl -L "$asset_url" | shasum -a 256 | awk '{ print $1 }')
+        latest_sha256=$(curl -L "${{ env.ASSET_URL }}" | shasum -a 256 | awk '{ print $1 }')
         sed -i "s/sha256 \".*\"/sha256 \"$latest_sha256\"/" Casks/nm3u8dl-re.rb
 
-        sed -i "s|url \".*\"|url \"$asset_url\"|" Casks/nm3u8dl-re.rb
+        sed -i "s|url \".*\"|url \"${{ env.ASSET_URL }}\"|" Casks/nm3u8dl-re.rb
 
     - name: Check for changes
       run: |
