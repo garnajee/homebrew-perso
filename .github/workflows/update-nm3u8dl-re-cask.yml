@@ -1,9 +1,9 @@
-name: Update nm3u8dl-re Cask
+name: nm3u8dl-re Cask
 
 on:
   schedule:
-    - cron: '0 0 * * *' # Exécuter tous les jours à minuit
-  workflow_dispatch: # Permet d'exécuter manuellement
+    - cron: '0 0 1 */3 *' # every 3 months
+  workflow_dispatch:
 
 jobs:
   update-cask:
@@ -22,19 +22,26 @@ jobs:
       run: |
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-    - name: Check latest release version
+    - name: Check latest release version and filename
       id: get_version
       run: |
         latest_version=$(curl --silent "https://api.github.com/repos/nilaoda/N_m3u8DL-RE/releases/latest" | jq -r .tag_name | sed 's/^v//')
         echo "Latest version is $latest_version"
         echo "LATEST_VERSION=$latest_version" >> $GITHUB_ENV
+        
+        asset_url=$(curl --silent "https://api.github.com/repos/nilaoda/N_m3u8DL-RE/releases/latest" | \
+          jq -r '.assets[] | select(.name | contains("osx-arm64")).browser_download_url')
+        echo "Asset URL is $asset_url"
+        echo "ASSET_URL=$asset_url" >> $GITHUB_ENV
 
     - name: Update Cask file
       run: |
         sed -i "s/version \".*\"/version \"${{ env.LATEST_VERSION }}\"/" Casks/nm3u8dl-re.rb
-        latest_sha256=$(curl -L "https://github.com/nilaoda/N_m3u8DL-RE/releases/download/v${{ env.LATEST_VERSION }}/N_m3u8DL-RE_v${{ env.LATEST_VERSION }}_osx-arm64.tar.gz" | shasum -a 256 | awk '{ print $1 }')
+
+        latest_sha256=$(curl -L "$asset_url" | shasum -a 256 | awk '{ print $1 }')
         sed -i "s/sha256 \".*\"/sha256 \"$latest_sha256\"/" Casks/nm3u8dl-re.rb
-        sed -i "s|url \".*\"|url \"https://github.com/nilaoda/N_m3u8DL-RE/releases/download/v${{ env.LATEST_VERSION }}/N_m3u8DL-RE_v${{ env.LATEST_VERSION }}_osx-arm64.tar.gz\"|" Casks/nm3u8dl-re.rb
+
+        sed -i "s|url \".*\"|url \"$asset_url\"|" Casks/nm3u8dl-re.rb
 
     - name: Check for changes
       run: |
