@@ -1,4 +1,4 @@
-name: Update Shaka Packager Cask
+name:  Shaka-Packager Cask
 
 on:
   schedule:
