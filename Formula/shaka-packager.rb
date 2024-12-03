@@ -9,10 +9,9 @@ class ShakaPackager < Formula
   depends_on "ninja" => :build
 
   def install
-    system "cmake", "-B", "build", "-G", "Ninja",
+    system "cmake", "-S", ".", "-B", "build", "-G", "Ninja",
                     "-DCMAKE_BUILD_TYPE=Release",
                     "-DBUILD_TESTING=OFF",
-                    "-DCMAKE_INSTALL_PREFIX=#{prefix}",
                     *std_cmake_args
     system "cmake", "--build", "build", "--parallel"
     system "cmake", "--install", "build", "--strip"
