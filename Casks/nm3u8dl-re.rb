@@ -7,8 +7,12 @@ cask "nm3u8dl-re" do
   desc "Cross-Platform, modern and powerful stream downloader for MPD/M3U8/ISM"
   homepage "https://github.com/nilaoda/N_m3u8DL-RE"
 
-  #artifact "N_m3u8DL-RE_Beta_osx-arm64/N_m3u8DL-RE", target: "/usr/local/bin/N_m3u8DL-RE"
   binary "#{staged_path}/N_m3u8DL-RE", target: "N_m3u8DL-RE"
 
   # No zap stanza required
+
+  caveats <<~EOS
+    To use `N_m3u8DL-RE`, run the following command in your terminal:
+      n_m3u8dl-re --help
+  EOS
 end
