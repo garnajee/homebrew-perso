@@ -27,12 +27,12 @@ jobs:
       run: |
         latest_version=$(curl --silent "https://api.github.com/repos/shaka-project/shaka-packager/releases/latest" | jq -r .tag_name | sed 's/^v//')
         echo "Latest version is $latest_version"
-        echo "::set-output name=version::$latest_version"
+        echo "LATEST_VERSION=$latest_version" >> $GITHUB_ENV
 
     - name: Update Cask file
       run: |
-        sed -i "s/version \".*\"/version \"${{ steps.get_version.outputs.version }}\"/" Casks/shaka-packager.rb
-        latest_sha256=$(curl -L "https://github.com/shaka-project/shaka-packager/releases/download/v${{ steps.get_version.outputs.version }}/packager-osx-arm64" | shasum -a 256 | awk '{ print $1 }')
+        sed -i "s/version \".*\"/version \"${{ env.LATEST_VERSION }}\"/" Casks/shaka-packager.rb
+        latest_sha256=$(curl -L "https://github.com/shaka-project/shaka-packager/releases/download/v${{ env.LATEST_VERSION }}/packager-osx-arm64" | shasum -a 256 | awk '{ print $1 }')
         sed -i "s/sha256 \".*\"/sha256 \"$latest_sha256\"/" Casks/shaka-packager.rb
 
     - name: Check for changes
@@ -45,7 +45,7 @@ jobs:
         git config --global user.name "GitHub Actions"
         git config --global user.email "actions@github.com"
         if ! git diff --quiet; then
-          git commit -am "Update shaka-packager to version ${{ steps.get_version.outputs.version }}"
+          git commit -am "Update shaka-packager to version ${{ env.LATEST_VERSION }}"
           git push
         else
           echo "No changes detected, skipping commit."
