@@ -39,6 +39,7 @@ jobs:
         else
           echo "The current version ($current_version) is outdated. Latest is ${{ env.LATEST_VERSION }}."
           echo "SKIP_UPDATE=false" >> $GITHUB_ENV
+        fi
 
     - name: Update Cask file
       if: env.SKIP_UPDATE == 'false'
