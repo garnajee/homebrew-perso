@@ -15,11 +15,11 @@
 
 <table>
   <tr>
-    <td>Cask</td>
+    <td>Cask - ARM and Intel</td>
     <td><pre><code>brew install --cask garnajee/perso/shaka-packager</code></pre></td>
   </tr>
   <tr>
-    <td>Formula</td>
+    <td>Formula - ARM</td>
     <td><pre><code>brew install garnajee/perso/shaka-packager</code></pre></td>
   </tr>
 </table>
@@ -32,17 +32,17 @@ packager --version
 
 ---
 
-### **n_m3u8dl-re**
+### **n_m3u8dl-re - ARM and Intel**
 
 [Official repo](https://github.com/nilaoda/N_m3u8DL-RE)
 
 <table>
   <tr>
-    <td>Cask</td>
+    <td>Cask - ARM and Intel</td>
     <td><pre><code>brew install --cask garnajee/perso/nm3u8dl-re</code></pre></td>
   </tr>
   <tr>
-    <td>Formula</td>
+    <td>Formula - ARM</td>
     <td><pre><code>brew install garnajee/perso/nm3u8dl-re</code></pre></td>
   </tr>
 </table>
