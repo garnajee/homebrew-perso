@@ -29,33 +29,69 @@ jobs:
         echo "Latest version is $latest_version"
         echo "LATEST_VERSION=$latest_version" >> $GITHUB_ENV
         
-        asset_url=$(curl --silent "https://api.github.com/repos/nilaoda/N_m3u8DL-RE/releases/latest" | \
-          jq -r '.assets[] | select(.name | contains("osx-arm64")).browser_download_url')
-        echo "Asset URL is $asset_url"
-        echo "ASSET_URL=$asset_url" >> $GITHUB_ENV
+        ##asset_url_arm=$(curl --silent "https://api.github.com/repos/nilaoda/N_m3u8DL-RE/releases/latest" | \
+        ##  jq -r '.assets[] | select(.name | contains("osx-arm64")).browser_download_url')
+        ##asset_url_intel=$(curl --silent "https://api.github.com/repos/nilaoda/N_m3u8DL-RE/releases/latest" | \
+        ##  jq -r '.assets[] | select(.name | contains("osx-x64")).browser_download_url')
+        ##echo "ARM URL: $asset_url_arm"
+        ##echo "INTEL URL: $asset_url_intel"
+        ##echo "ASSET_URL_ARM=$asset_url_arm" >> $GITHUB_ENV
+        ##echo "ASSET_URL_INTEL=$asset_url_intel" >> $GITHUB_ENV
+
+        file_name=$(curl --silent "https://api.github.com/repos/nilaoda/N_m3u8DL-RE/releases/latest" | \
+          jq -r '.assets[] | select(.name | contains("osx-arm64")).name')
+        file_date=$(echo "$file_name" | grep -oE '[0-9]{8}' || echo "00000000")
+        echo "File date is $file_date"
+        echo "FILE_DATE=$file_date" >> $GITHUB_ENV
+
+    - name: Check current version in Cask file
+      run: |
+        current_version=$(grep -Eo 'version "[0-9]+\.[0-9]+\.[0-9]+(-beta)?"' Casks/nm3u8dl-re.rb | sed 's/version "//; s/"//')
+        echo "CURRENT_VERSION=$current_version" >> $GITHUB_ENV
+        if [ "$current_version" = "${{ env.LATEST_VERSION }}" ]; then
+          echo "The current version ($current_version) is already up-to-date."
+          echo "SKIP_UPDATE=true" >> $GITHUB_ENV
+        else
+          echo "The current version ($current_version) is outdated. Latest is ${{ env.LATEST_VERSION }}."
+          echo "SKIP_UPDATE=false" >> $GITHUB_ENV
+        fi
 
     - name: Update Cask file
+      if: env.SKIP_UPDATE == 'false'
       run: |
         sed -i "s/version \".*\"/version \"${{ env.LATEST_VERSION }}\"/" Casks/nm3u8dl-re.rb
 
-        latest_sha256=$(curl -L "${{ env.ASSET_URL }}" | shasum -a 256 | awk '{ print $1 }')
-        sed -i "s/sha256 \".*\"/sha256 \"$latest_sha256\"/" Casks/nm3u8dl-re.rb
+        ##latest_sha256_arm=$(curl -L "${{ env.ASSET_URL_ARM }}" | shasum -a 256 | awk '{ print $1 }')
+        ##latest_sha256_intel=$(curl -L "${{ env.ASSET_URL_INTEL }}" | shasum -a 256 | awk '{ print $1 }')
+        ##sed -i "/sha256 arm:/s/\".*\"/\"$latest_sha256_arm\"/" Casks/nm3u8dl-re.rb
+        ##sed -i "/sha256.*intel:/s/\".*\"/\"$latest_sha256_intel\"/" Casks/nm3u8dl-re.rb
+        ##sed -i "s|url \".*\"|url \"https://github.com/nilaoda/N_m3u8DL-RE/releases/download/v${{ env.LATEST_VERSION }}/N_m3u8DL-RE_v${{ env.LATEST_VERSION }}_osx-#{arch}_20241203.tar.gz\"|" Casks/nm3u8dl-re.rb
 
-        sed -i "s|url \".*\"|url \"${{ env.ASSET_URL }}\"|" Casks/nm3u8dl-re.rb
+        # update urls
+        sed -i "s|url \".*osx-arm64.*\"|url \"https://github.com/nilaoda/N_m3u8DL-RE/releases/download/v${{ env.LATEST_VERSION }}/N_m3u8DL-RE_v${{ env.LATEST_VERSION }}_osx-arm64_${{ env.FILE_DATE }}.tar.gz\"|" Casks/nm3u8dl-re.rb
+        sed -i "s|url \".*osx-x64.*\"|url \"https://github.com/nilaoda/N_m3u8DL-RE/releases/download/v${{ env.LATEST_VERSION }}/N_m3u8DL-RE_v${{ env.LATEST_VERSION }}_osx-x64_${{ env.FILE_DATE }}.tar.gz\"|" Casks/nm3u8dl-re.rb
+
+        # calculate sha256
+        arm_url="https://github.com/nilaoda/N_m3u8DL-RE/releases/download/v${{ env.LATEST_VERSION }}/N_m3u8DL-RE_v${{ env.LATEST_VERSION }}_osx-arm64_${{ env.FILE_DATE }}.tar.gz"
+        intel_url="https://github.com/nilaoda/N_m3u8DL-RE/releases/download/v${{ env.LATEST_VERSION }}/N_m3u8DL-RE_v${{ env.LATEST_VERSION }}_osx-x64_${{ env.FILE_DATE }}.tar.gz"
+        latest_sha256_arm=$(curl -L "$arm_url" | shasum -a 256 | awk '{ print $1 }')
+        latest_sha256_intel=$(curl -L "$intel_url" | shasum -a 256 | awk '{ print $1 }')
+
+        # update sha256
+        sed -i "/sha256 arm:/s/\".*\"/\"$latest_sha256_arm\"/" Casks/nm3u8dl-re.rb
+        sed -i "/sha256.*intel:/s/\".*\"/\"$latest_sha256_intel\"/" Casks/nm3u8dl-re.rb
 
     - name: Check for changes
+      if: env.SKIP_UPDATE == 'false'
       run: |
         git status
         git diff
 
     - name: Commit and push changes
+      if: env.SKIP_UPDATE == 'false'
       run: |
         git config --global user.name "GitHub Actions"
         git config --global user.email "actions@github.com"
-        if ! git diff --quiet; then
-          git commit -am "Update nm3u8dl-re to version ${{ env.LATEST_VERSION }}"
-          git push
-        else
-          echo "No changes detected, skipping commit."
-        fi
+        git commit -am "Update nm3u8dl-re to version ${{ env.LATEST_VERSION }}"
+        git push
 
