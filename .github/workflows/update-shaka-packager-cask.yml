@@ -26,10 +26,22 @@ jobs:
       id: get_version
       run: |
         latest_version=$(curl --silent "https://api.github.com/repos/shaka-project/shaka-packager/releases/latest" | jq -r .tag_name | sed 's/^v//')
-        echo "Latest version is $latest_version"
         echo "LATEST_VERSION=$latest_version" >> $GITHUB_ENV
 
+    - name: Check current version in Cask file
+      id: check_current_version
+      run: |
+        current_version=$(grep -Eo 'version "[0-9]+\.[0-9]+\.[0-9]+"' Casks/shaka-packager.rb | sed 's/version "//; s/"//')
+        echo "CURRENT_VERSION=$current_version" >> $GITHUB_ENV
+        if [ "$current_version" = "${{ env.LATEST_VERSION }}" ]; then
+          echo "The current version ($current_version) is already up-to-date."
+          echo "SKIP_UPDATE=true" >> $GITHUB_ENV
+        else
+          echo "The current version ($current_version) is outdated. Latest is ${{ env.LATEST_VERSION }}."
+          echo "SKIP_UPDATE=false" >> $GITHUB_ENV
+
     - name: Update Cask file
+      if: env.SKIP_UPDATE == 'false'
       run: |
         # update version
         sed -i "s/version \".*\"/version \"${{ env.LATEST_VERSION }}\"/" Casks/shaka-packager.rb
@@ -45,21 +57,19 @@ jobs:
         sed -i "s/intel:  \"[^\"]*\"/intel:  \"$latest_sha256_intel\"/" Casks/shaka-packager.rb
 
     - name: Check for changes
+      if: env.SKIP_UPDATE == 'false'
       run: |
         git status
         git diff
 
     - name: Commit and push changes
+      if: env.SKIP_UPDATE == 'false'
       env:
         GH_PAT: ${{ secrets.GH_PAT }}
       run: |
         git config --global user.name "GitHub Actions"
         git config --global user.email "actions@github.com"
         git remote set-url origin https://x-access-token:${GH_PAT}@github.com/garnajee/homebrew-perso.git
-        if ! git diff --quiet; then
-          git commit -am "Update shaka-packager to version ${{ env.LATEST_VERSION }}"
-          git push origin HEAD
-        else
-          echo "No changes detected, skipping commit."
-        fi
+        git commit -am "Update shaka-packager to version ${{ env.LATEST_VERSION }}"
+        git push origin HEAD
 
