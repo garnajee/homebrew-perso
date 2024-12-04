@@ -54,9 +54,7 @@ jobs:
         sed -i "s/version \".*\"/version \"${{ env.LATEST_VERSION }}\"/" Casks/nm3u8dl-re.rb
 
         # update urls
-        ##sed -i "s|url \".*osx-arm64.*\"|url \"https://github.com/nilaoda/N_m3u8DL-RE/releases/download/v${{ env.LATEST_VERSION }}/N_m3u8DL-RE_v${{ env.LATEST_VERSION }}_osx-arm64_${{ env.FILE_DATE }}.tar.gz\"|" Casks/nm3u8dl-re.rb
-        ##sed -i "s|url \".*osx-x64.*\"|url \"https://github.com/nilaoda/N_m3u8DL-RE/releases/download/v${{ env.LATEST_VERSION }}/N_m3u8DL-RE_v${{ env.LATEST_VERSION }}_osx-x64_${{ env.FILE_DATE }}.tar.gz\"|" Casks/nm3u8dl-re.rb
-        sed -i "s|url \".*osx-#{arch}.*\"|url \"https://github.com/nilaoda/N_m3u8DL-RE/releases/download/v${{ env.LATEST_VERSION }}/N_m3u8DL-RE_v${{ env.LATEST_VERSION }}_osx-#{arch}_${{ env.FILE_DATE }}.tar.gz\"|" Casks/nm3u8dl-re.rb
+        sed -i "s|url \".*osx-#{arch}.*\"|url \"https://github.com/nilaoda/N_m3u8DL-RE/releases/download/v#{version}/N_m3u8DL-RE_v#{version}_osx-#{arch}_${{ env.FILE_DATE }}.tar.gz\"|" Casks/nm3u8dl-re.rb
 
         # calculate sha256
         arm_url="https://github.com/nilaoda/N_m3u8DL-RE/releases/download/v${{ env.LATEST_VERSION }}/N_m3u8DL-RE_v${{ env.LATEST_VERSION }}_osx-arm64_${{ env.FILE_DATE }}.tar.gz"
