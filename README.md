@@ -2,12 +2,14 @@
 
 | Brew               | Version  | Cask | Formula | Brew Auto Update |
 |:------------------:|:--------:|:-----------:|:--------------:|:------------------:|
-| [**Shaka Packager**](#shaka-packager) | ![Shaka Packager Version](https://img.shields.io/github/v/release/shaka-project/shaka-packager) | ✅ | 🛠️ | ![Cask](https://github.com/garnajee/homebrew-perso/actions/workflows/update-shaka-packager-cask.yml/badge.svg) |
-| [**n_m3u8dl-re**](#nm3u8dl-re)    | ![n_m3u8dl-re Version](https://img.shields.io/github/v/release/nilaoda/N_m3u8DL-RE) | ✅ | 🛠️ | ![Cask](https://github.com/garnajee/homebrew-perso/actions/workflows/update-nm3u8dl-re-cask.yml/badge.svg) |
+| [**Shaka Packager**](#shaka-packager) | ![Shaka Packager Version](https://img.shields.io/github/v/release/shaka-project/shaka-packager) | ✅ | ✅ | ![Cask](https://github.com/garnajee/homebrew-perso/actions/workflows/update-shaka-packager-cask.yml/badge.svg) |
+| [**n_m3u8dl-re**](#nm3u8dl-re)    | ![n_m3u8dl-re Version](https://img.shields.io/github/v/release/nilaoda/N_m3u8DL-RE) | ✅ | ✅ | ![Cask](https://github.com/garnajee/homebrew-perso/actions/workflows/update-nm3u8dl-re-cask.yml/badge.svg) |
 
 ---
 
 ## 📦 Installation
+
+*After each installation, you might want to run `brew cleanup --prune=all` in order to remove any outdated versions and free up disk space by cleaning up unused files and dependencies left behind after updates or installations.*
 
 ### **Shaka Packager**
 
@@ -19,7 +21,7 @@
     <td><pre><code>brew install --cask garnajee/perso/shaka-packager</code></pre></td>
   </tr>
   <tr>
-    <td>Formula - ARM</td>
+    <td>Formula - ARM and Intel</td>
     <td><pre><code>brew install garnajee/perso/shaka-packager</code></pre></td>
   </tr>
 </table>
@@ -42,7 +44,7 @@ packager --version
     <td><pre><code>brew install --cask garnajee/perso/nm3u8dl-re</code></pre></td>
   </tr>
   <tr>
-    <td>Formula - ARM</td>
+    <td>Formula - ARM and Intel</td>
     <td><pre><code>brew install garnajee/perso/nm3u8dl-re</code></pre></td>
   </tr>
 </table>
