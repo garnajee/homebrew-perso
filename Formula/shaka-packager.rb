@@ -31,4 +31,3 @@ class ShakaPackager < Formula
     assert_match "packager", shell_output("#{bin}/packager -h")
   end
 end
-
