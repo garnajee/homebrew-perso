@@ -1,4 +1,4 @@
-class NM3u8dlRe < Formula
+class Nm3u8dlRe < Formula
   desc "Cross-Platform, modern and powerful stream downloader for MPD/M3U8/ISM."
   homepage "https://github.com/nilaoda/N_m3u8DL-RE"
   url "https://github.com/nilaoda/N_m3u8DL-RE/archive/refs/tags/v0.3.0-beta.tar.gz"
