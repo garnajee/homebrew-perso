@@ -3,7 +3,7 @@ class ShakaPackager < Formula
   homepage "https://github.com/shaka-project/shaka-packager"
   url "https://github.com/shaka-project/shaka-packager.git",
       tag:      "v3.4.0",
-      revision: "ef1d8995c6c1e6f4df5b9c1d8f7cbb3a8d383bbe",
+      revision: "1f0a4d1959a17ea77b7f18b608338329395b6a45",
       shallow:  true
   license "BSD-3-Clause"
 
