@@ -1,7 +1,7 @@
 cask "shaka-packager" do
-  version "3.4.2"
-  sha256 arm:   "d97cc27e2b003dd56937c54eb08f0c3f61637ad976a2d98b8bf2adaf041cb1c2",
-        intel:  "cd70359fe9dadca88cce4a7ec32d93184d13f3439cf0f43fd95156dd8b8135df"
+  version "null"
+  sha256 arm:   "0019dfc4b32d63c1392aa264aed2253c1e0c2fb09216f8e2cc269bbfb8bb49b5",
+        intel:  "0019dfc4b32d63c1392aa264aed2253c1e0c2fb09216f8e2cc269bbfb8bb49b5"
   arch arm: "arm64", intel: "x64"
 
   url "https://github.com/shaka-project/shaka-packager/releases/download/v#{version}/packager-osx-#{arch}"
