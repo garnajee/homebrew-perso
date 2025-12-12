@@ -1,0 +1,76 @@
+name:  Shaka-Packager Cask
+
+on:
+  schedule:
+    - cron: '0 0 * * *' 
+  workflow_dispatch: 
+
+jobs:
+  update-cask:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.3'
+
+    - name: Install Homebrew
+      run: |
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+    - name: Check latest release version
+      id: get_version
+      run: |
+        latest_version=$(curl --silent "https://api.github.com/repos/shaka-project/shaka-packager/releases/latest" | jq -r .tag_name | sed 's/^v//')
+        echo "LATEST_VERSION=$latest_version" >> $GITHUB_ENV
+
+    - name: Check current version in Cask file
+      id: check_current_version
+      run: |
+        current_version=$(grep -Eo 'version "[0-9]+\.[0-9]+\.[0-9]+"' Casks/shaka-packager.rb | sed 's/version "//; s/"//')
+        echo "CURRENT_VERSION=$current_version" >> $GITHUB_ENV
+        if [ "$current_version" = "${{ env.LATEST_VERSION }}" ]; then
+          echo "The current version ($current_version) is already up-to-date."
+          echo "SKIP_UPDATE=true" >> $GITHUB_ENV
+        else
+          echo "The current version ($current_version) is outdated. Latest is ${{ env.LATEST_VERSION }}."
+          echo "SKIP_UPDATE=false" >> $GITHUB_ENV
+        fi
+
+    - name: Update Cask file
+      if: env.SKIP_UPDATE == 'false'
+      run: |
+        # update version
+        sed -i "s/version \".*\"/version \"${{ env.LATEST_VERSION }}\"/" Casks/shaka-packager.rb
+
+        # calculate sha256 arm
+        latest_sha256_arm=$(curl -L "https://github.com/shaka-project/shaka-packager/releases/download/v${{ env.LATEST_VERSION }}/packager-osx-arm64" | shasum -a 256 | awk '{ print $1 }')
+
+        # calculate sha256 intel
+        latest_sha256_intel=$(curl -L "https://github.com/shaka-project/shaka-packager/releases/download/v${{ env.LATEST_VERSION }}/packager-osx-x64" | shasum -a 256 | awk '{ print $1 }')
+
+        # replace sha256 in file
+        sed -i "s/sha256 arm:   \"[^\"]*\"/sha256 arm:   \"$latest_sha256_arm\"/" Casks/shaka-packager.rb
+        sed -i "s/intel:  \"[^\"]*\"/intel:  \"$latest_sha256_intel\"/" Casks/shaka-packager.rb
+
+    - name: Check for changes
+      if: env.SKIP_UPDATE == 'false'
+      run: |
+        git status
+        git diff
+
+    - name: Commit and push changes
+      if: env.SKIP_UPDATE == 'false'
+      env:
+        GH_PAT: ${{ secrets.GH_PAT }}
+      run: |
+        git config --global user.name "GitHub Actions"
+        git config --global user.email "actions@github.com"
+        git remote set-url origin https://x-access-token:${GH_PAT}@github.com/garnajee/homebrew-perso.git
+        git commit -am "Update shaka-packager to version ${{ env.LATEST_VERSION }}"
+        git push origin HEAD
+

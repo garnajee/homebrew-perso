@@ -1,0 +1,49 @@
+name: Update nm3u8dl-re Formula
+
+on:
+  schedule:
+    - cron: '0 1 1 */3 *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-formula:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Get Latest Version
+      id: get_version
+      run: |
+        latest_version=$(curl -s "https://api.github.com/repos/nilaoda/N_m3u8DL-RE/releases/latest" | jq -r .tag_name | sed 's/^v//')
+        echo "LATEST_VERSION=$latest_version" >> $GITHUB_ENV
+
+    - name: Check current version
+      run: |
+        current_version=$(grep -m1 'url ".*tags/v' Formula/nm3u8dl-re.rb | sed -E 's/.*tags\/v([^"]+)\.tar\.gz".*/\1/')
+        echo "Current: $current_version, Latest: ${{ env.LATEST_VERSION }}"
+        if [ "$current_version" = "${{ env.LATEST_VERSION }}" ]; then
+          echo "SKIP_UPDATE=true" >> $GITHUB_ENV
+        else
+          echo "SKIP_UPDATE=false" >> $GITHUB_ENV
+        fi
+
+    - name: Update Formula
+      if: env.SKIP_UPDATE == 'false'
+      run: |
+        # Calculate SHA256 of the source tarball
+        source_url="https://github.com/nilaoda/N_m3u8DL-RE/archive/refs/tags/v${{ env.LATEST_VERSION }}.tar.gz"
+        new_sha256=$(curl -L -s "$source_url" | sha256sum | awk '{ print $1 }')
+
+        # Update URL and SHA256 in file
+        sed -i "s|url \".*\"|url \"$source_url\"|" Formula/nm3u8dl-re.rb
+        sed -i "s/sha256 \".*\"/sha256 \"$new_sha256\"/" Formula/nm3u8dl-re.rb
+
+        # Commit
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+        git commit -am "Update nm3u8dl-re Formula to ${{ env.LATEST_VERSION }}"
+        git push
