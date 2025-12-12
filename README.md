@@ -1,68 +1,69 @@
-# 🛠️ Personal Homebrew Packages
+# Personal Homebrew Packages
 
-| Brew               | Version  | Cask | Formula | Brew Auto Update |
-|:------------------:|:--------:|:-----------:|:--------------:|:------------------:|
-| [**Shaka Packager**](#shaka-packager) | ![Shaka Packager Version](https://img.shields.io/github/v/release/shaka-project/shaka-packager) | ✅ | ✅ | ![Cask](https://github.com/garnajee/homebrew-perso/actions/workflows/update-shaka-packager-cask.yml/badge.svg) |
-| [**n_m3u8dl-re**](#nm3u8dl-re)    | ![n_m3u8dl-re Version](https://img.shields.io/github/v/release/nilaoda/N_m3u8DL-RE) | ✅ | ✅ | ![Cask](https://github.com/garnajee/homebrew-perso/actions/workflows/update-nm3u8dl-re-cask.yml/badge.svg) |
+A collection of Homebrew formulae and casks for media streaming tools, maintained by [Garnajee](https://github.com/garnajee).
+
+## Status & Availability
+
+| Tool | Version | Type | Auto-Update Status | Description |
+|:--- |:---:|:---:|:---:|:---|
+| [**Shaka Packager**](https://github.com/shaka-project/shaka-packager) | ![Version](https://img.shields.io/github/v/release/shaka-project/shaka-packager?label=%20) | **Cask** | ![Cask Status](https://github.com/garnajee/homebrew-perso/actions/workflows/update-shaka-packager-cask.yml/badge.svg) | <br>Media packaging SDK for DASH/HLS. |
+| | | **Formula** | ![Formula Status](https://github.com/garnajee/homebrew-perso/actions/workflows/update-shaka-packager-formula.yml/badge.svg) | |
+| [**N_m3u8DL-RE**](https://github.com/nilaoda/N_m3u8DL-RE) | ![Version](https://img.shields.io/github/v/release/nilaoda/N_m3u8DL-RE?label=%20) | **Cask** | ![Cask Status](https://github.com/garnajee/homebrew-perso/actions/workflows/update-nm3u8dl-re-cask.yml/badge.svg) | <br>Cross-Platform stream downloader (DASH/HLS). |
+| | | **Formula** | ![Formula Status](https://github.com/garnajee/homebrew-perso/actions/workflows/update-nm3u8dl-re-formula.yml/badge.svg) | |
 
 ---
 
-## 📦 Installation
+## Installation
 
-*After each installation, you might want to run `brew cleanup --prune=all` in order to remove any outdated versions and free up disk space by cleaning up unused files and dependencies left behind after updates or installations.*
+First, add this tap to your Homebrew:
 
-### **Shaka Packager**
-
-[Official repo](https://github.com/shaka-project/shaka-packager)
-
-<table>
-  <tr>
-    <td>Cask - ARM and Intel</td>
-    <td><pre><code>brew install --cask garnajee/perso/shaka-packager</code></pre></td>
-  </tr>
-  <tr>
-    <td>Formula - ARM and Intel</td>
-    <td><pre><code>brew install garnajee/perso/shaka-packager</code></pre></td>
-  </tr>
-</table>
-
-#### Verify Installation:
 ```bash
-packager --help
-packager --version
+brew tap garnajee/perso
 ```
 
+### 1. Shaka Packager
+
+You can install the pre-compiled binary (Cask) or the CLI tool (Formula).
+
+*   **Option A: Cask (Recommended)**
+    ```bash
+    brew install --cask shaka-packager
+    ```
+*   **Option B: Formula**
+    ```bash
+    brew install shaka-packager
+    ```
+
+> **Verification:** Run `packager --version`
+
+### 2. N_m3u8DL-RE
+
+*   **Option A: Cask (Pre-compiled Binary)**
+    ```bash
+    brew install --cask nm3u8dl-re
+    ```
+*   **Option B: Formula (Build from source)**
+    ```bash
+    brew install nm3u8dl-re
+    ```
+
+> **Verification:** Run `n_m3u8dl-re --version`
+
 ---
 
-### **n_m3u8dl-re - ARM and Intel**
+## Maintenance
 
-[Official repo](https://github.com/nilaoda/N_m3u8DL-RE)
+After updates, you can remove old versions and free up space:
 
-<table>
-  <tr>
-    <td>Cask - ARM and Intel</td>
-    <td><pre><code>brew install --cask garnajee/perso/nm3u8dl-re</code></pre></td>
-  </tr>
-  <tr>
-    <td>Formula - ARM and Intel</td>
-    <td><pre><code>brew install garnajee/perso/nm3u8dl-re</code></pre></td>
-  </tr>
-</table>
-
-#### Verify Installation:
 ```bash
-n_m3u8dl-re --help
-n_m3u8dl-re --version
+brew cleanup --prune=all
 ```
 
----
+## Contributing
 
-## 🔧 Contributing
+Feel free to open an **[Issue](https://github.com/garnajee/homebrew-perso/issues)** or submit a **Pull Request** for improvements.
 
-Feel free to open an **issue** or submit a **pull request** for any improvements or suggestions.
+## Maintainer
 
----
+Maintained by **[Garnajee](https://github.com/garnajee)**.
 
-## 👨‍💻 Maintainer
-
-These packages are created and maintained by [Garnajee](https://github.com/garnajee). Feel free to reach out for any inquiries or requests.
