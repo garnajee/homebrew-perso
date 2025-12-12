@@ -54,8 +54,8 @@ jobs:
         sed -i "s/version \".*\"/version \"$ver\"/" Casks/shaka-packager.rb
 
         # 2. update SH1256
-        sed -i "s/sha256 arm:   \".*\"/sha256 arm:   \"$sha_arm\",/" Casks/shaka-packager.rb
-        sed -i "s/intel:  \".*\"/intel:  \"$sha_intel\"/" Casks/shaka-packager.rb
+        sed -i "s/sha256 arm:   \"[^\"]*\"/sha256 arm:   \"$sha_arm\"/" Casks/shaka-packager.rb
+        sed -i "s/intel:  \"[^\"]*\"/intel:  \"$sha_intel\"/" Casks/shaka-packager.rb
 
         # Commit et Push
         git config user.name "GitHub Actions"
