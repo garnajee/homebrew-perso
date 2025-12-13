@@ -14,7 +14,9 @@ class Nm3u8dlRe < Formula
     system "dotnet", "publish", "src/N_m3u8DL-RE", 
            "--configuration", "Release", 
            "--runtime", rid, 
-           "--self-contained", "false",
+           "--self-contained", "false", 
+           "-p:PublishTrimmed=false",
+           "-p:PublishSingleFile=true",
            "--output", "artifact"
 
     bin.install "artifact/N_m3u8DL-RE" => "n_m3u8dl-re"
