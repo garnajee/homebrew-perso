@@ -3,6 +3,7 @@ class Nm3u8dlRe < Formula
   homepage "https://github.com/nilaoda/N_m3u8DL-RE"
   url "https://github.com/nilaoda/N_m3u8DL-RE/archive/refs/tags/v0.5.1-beta.tar.gz"
   sha256 "55559fec4deef7e40a4d45eebb699865f01d04f7e72110ce5d11b4ca3e655a93"
+  version "v0.5.1-beta"
   license "MIT"
 
   depends_on "dotnet" => :build
@@ -20,6 +21,6 @@ class Nm3u8dlRe < Formula
   end
 
   test do
-    assert_match version.to_s, shell_output("#{bin}/n_m3u8dl-re --version")
+    system "#{bin}/n_m3u8dl-re", "--version"
   end
 end

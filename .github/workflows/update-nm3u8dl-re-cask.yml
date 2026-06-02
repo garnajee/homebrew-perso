@@ -19,7 +19,7 @@ jobs:
       id: info
       run: |
         json=$(curl -s "https://api.github.com/repos/nilaoda/N_m3u8DL-RE/releases/latest")
-        version=$(echo "$json" | jq -r .tag_name | sed 's/^v//')
+        version=$(echo "$json" | jq -r .tag_name)
         
         filename=$(echo "$json" | jq -r '.assets[] | select(.name | contains("osx-arm64")).name')
         file_date=$(echo "$filename" | grep -oE '[0-9]{8}' || echo "00000000")
@@ -44,8 +44,8 @@ jobs:
         v="${{ env.VERSION }}"
         d="${{ env.DATE }}"
         
-        url_arm="https://github.com/nilaoda/N_m3u8DL-RE/releases/download/v$v/N_m3u8DL-RE_v${v}_osx-arm64_${d}.tar.gz"
-        url_int="https://github.com/nilaoda/N_m3u8DL-RE/releases/download/v$v/N_m3u8DL-RE_v${v}_osx-x64_${d}.tar.gz"
+        url_arm="https://github.com/nilaoda/N_m3u8DL-RE/releases/download/$v/N_m3u8DL-RE_${v}_osx-arm64_${d}.tar.gz"
+        url_int="https://github.com/nilaoda/N_m3u8DL-RE/releases/download/$v/N_m3u8DL-RE_${v}_osx-x64_${d}.tar.gz"
         
         sha_arm=$(curl -L -s "$url_arm" | sha256sum | awk '{ print $1 }')
         sha_int=$(curl -L -s "$url_int" | sha256sum | awk '{ print $1 }')
@@ -54,7 +54,7 @@ jobs:
         sed -i "s/version \".*\"/version \"$v\"/" Casks/nm3u8dl-re.rb
         
         # Update URL line
-        sed -i "s|url \".*\"|url \"https://github.com/nilaoda/N_m3u8DL-RE/releases/download/v#{version}/N_m3u8DL-RE_v#{version}_osx-#{arch}_${d}.tar.gz\"|" Casks/nm3u8dl-re.rb
+        sed -i "s|url \".*\"|url \"https://github.com/nilaoda/N_m3u8DL-RE/releases/download/#{version}/N_m3u8DL-RE_#{version}_osx-#{arch}_${d}.tar.gz\"|" Casks/nm3u8dl-re.rb
         
         # Update SHAs
         sed -i "s/sha256 arm:   \".*\"/sha256 arm:   \"$sha_arm\"/" Casks/nm3u8dl-re.rb
