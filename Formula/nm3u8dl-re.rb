@@ -11,13 +11,10 @@ class Nm3u8dlRe < Formula
     arch = Hardware::CPU.intel? ? "x64" : "arm64"
     rid = "osx-#{arch}"
 
-    system "dotnet", "publish", "src/N_m3u8DL-RE", 
-           "--configuration", "Release", 
-           "--runtime", rid, 
-           "--self-contained", "false", 
-           "-p:PublishTrimmed=false",
-           "-p:PublishSingleFile=true",
-           "--output", "artifact"
+    system "dotnet", "publish", "src/N_m3u8DL-RE",
+           "-r", rid,
+           "-c", "Release",
+           "-o", "artifact"
 
     bin.install "artifact/N_m3u8DL-RE" => "n_m3u8dl-re"
   end
