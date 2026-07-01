@@ -1,10 +1,10 @@
 cask "nm3u8dl-re" do
-  version "v0.5.1-beta"
-  sha256 arm:   "537866d7d03c9aed04c910014bceae26a3db494c1d1edae9c59ddaaa29b0a1c7",
-        intel:  "fb0d9fd6c18b08a5c55e49f60d3c219471196bd05bf15e58f318a44da500f65a"
+  version "v0.6.0-beta"
+  sha256 arm:   "ca181b7e8976564766c34e3cefe48fff409f58289ca970ade062668c01c53918",
+        intel:  "4dab8d256ae3164557f48a3326c8fa60da99e37536ee1589ce6c841180fa8204"
   arch arm: "arm64", intel: "x64"
 
-  url "https://github.com/nilaoda/N_m3u8DL-RE/releases/download/#{version}/N_m3u8DL-RE_#{version}_osx-#{arch}_20251029.tar.gz"
+  url "https://github.com/nilaoda/N_m3u8DL-RE/releases/download/#{version}/N_m3u8DL-RE_#{version}_osx-#{arch}_20260629.tar.gz"
   name "N_m3u8DL-RE"
   desc "Cross-Platform, modern and powerful stream downloader for MPD/M3U8/ISM"
   homepage "https://github.com/nilaoda/N_m3u8DL-RE"
