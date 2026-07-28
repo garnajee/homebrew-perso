@@ -1,15 +1,15 @@
 class ShakaPackager < Formula
   desc "SDK for media packaging of DASH/HLS content (includes packager, pssh-box.py, and mpd_generator)"
   homepage "https://github.com/shaka-project/shaka-packager"
-  version "3.9.2"
+  version "3.9.3"
   license "BSD-3-Clause"
 
   if Hardware::CPU.arm?
     url "https://github.com/shaka-project/shaka-packager/releases/download/v#{version}/packager-osx-arm64"
-    sha256 "deb4a441d3ef3edf8c04f7d488f6c89748326d602add070469f22cb63cb655a0"
+    sha256 "b3049e743451aab5c2cd7b1316a4ce055682c41effe06a49e2e6c95a9243d351"
   else
     url "https://github.com/shaka-project/shaka-packager/releases/download/v#{version}/packager-osx-x64"
-    sha256 "15509004dc24b24955eacb43f1ac05db978b7bb7a9c63511767867c717326848"
+    sha256 "64f0fece6a5f80603d9f19b3adc70e626303feb63b459fd599132632b8e76420"
   end
 
   def install
