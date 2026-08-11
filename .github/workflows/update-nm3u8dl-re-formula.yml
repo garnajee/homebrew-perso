@@ -6,45 +6,277 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
+
+concurrency:
+  group: update-nm3u8dl-re-formula-${{ github.ref }}
+  cancel-in-progress: false
+
+env:
+  UPSTREAM_REPOSITORY: nilaoda/N_m3u8DL-RE
+  FORMULA_PATH: Formula/nm3u8dl-re.rb
+  ARTIFACT_NAME: nm3u8dl-re-formula
 
 jobs:
-  update-formula:
+  prepare:
+    name: Prepare candidate
     runs-on: ubuntu-latest
+    outputs:
+      base_sha: ${{ steps.candidate.outputs.base_sha }}
+      changed: ${{ steps.candidate.outputs.changed }}
+      sha256: ${{ steps.candidate.outputs.sha256 }}
+      source_url: ${{ steps.candidate.outputs.source_url }}
+      tag: ${{ steps.release.outputs.tag }}
+      version: ${{ steps.release.outputs.version }}
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Get Latest Version
-      id: get_version
-      run: |
-        latest_version=$(curl -s "https://api.github.com/repos/nilaoda/N_m3u8DL-RE/releases/latest" | jq -r .tag_name)
-        echo "LATEST_VERSION=$latest_version" >> $GITHUB_ENV
+      - name: Test release selector
+        run: bash .github/scripts/test-select-latest-nm3u8dl-release.sh
 
-    - name: Check current version
-      run: |
-        current_version=$(grep -m1 'url ".*tags/' Formula/nm3u8dl-re.rb | sed -E 's/.*tags\/(v[^"]+)\.tar\.gz".*/\1/')
-        echo "Current: $current_version, Latest: ${{ env.LATEST_VERSION }}"
-        if [ "$current_version" = "${{ env.LATEST_VERSION }}" ]; then
-          echo "SKIP_UPDATE=true" >> $GITHUB_ENV
-        else
-          echo "SKIP_UPDATE=false" >> $GITHUB_ENV
-        fi
+      - name: Resolve latest published release
+        id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -Eeuo pipefail
 
-    - name: Update Formula
-      if: env.SKIP_UPDATE == 'false'
-      run: |
-        # Calculate SHA256 of the source tarball
-        source_url="https://github.com/nilaoda/N_m3u8DL-RE/archive/refs/tags/${{ env.LATEST_VERSION }}.tar.gz"
-        new_sha256=$(curl -L -s "$source_url" | sha256sum | awk '{ print $1 }')
+          api_headers=(
+            --header "Authorization: Bearer ${GH_TOKEN}"
+            --header "Accept: application/vnd.github+json"
+            --header "X-GitHub-Api-Version: 2022-11-28"
+          )
 
-        # Update URL, version and SHA256 in file
-        sed -i "s|url \".*\"|url \"$source_url\"|" Formula/nm3u8dl-re.rb
-        sed -i "s/version \".*\"/version \"${{ env.LATEST_VERSION }}\"/" Formula/nm3u8dl-re.rb
-        sed -i "s/sha256 \".*\"/sha256 \"$new_sha256\"/" Formula/nm3u8dl-re.rb
+          curl --fail-with-body --silent --show-error --location --retry 3 \
+            "${api_headers[@]}" \
+            "https://api.github.com/repos/${UPSTREAM_REPOSITORY}/releases?per_page=100" \
+            --output releases.json
 
-        # Commit
-        git config user.name "GitHub Actions"
-        git config user.email "actions@github.com"
-        git commit -am "Update nm3u8dl-re Formula to ${{ env.LATEST_VERSION }}"
-        git push
+          selection="$(bash .github/scripts/select-latest-nm3u8dl-release.sh releases.json)"
+          tag="$(jq -er '.tag' <<<"$selection")"
+          version="$(jq -er '.version' <<<"$selection")"
+          release_id="$(jq -er '.release_id' <<<"$selection")"
+
+          curl --fail-with-body --silent --show-error --location --retry 3 \
+            "${api_headers[@]}" \
+            "https://api.github.com/repos/${UPSTREAM_REPOSITORY}/releases/${release_id}" \
+            --output release.json
+          [[ "$(jq -er '.tag_name' release.json)" == "$tag" ]]
+
+          curl --fail-with-body --silent --show-error --location --retry 3 \
+            "${api_headers[@]}" \
+            "https://api.github.com/repos/${UPSTREAM_REPOSITORY}/git/ref/tags/${tag}" \
+            --output tag-ref.json
+          [[ "$(jq -er '.ref' tag-ref.json)" == "refs/tags/${tag}" ]]
+
+          echo "Resolved ${tag} (${version})"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Download and validate source archive
+        id: archive
+        run: |
+          set -Eeuo pipefail
+
+          tag="${{ steps.release.outputs.tag }}"
+          source_url="https://github.com/${UPSTREAM_REPOSITORY}/archive/refs/tags/${tag}.tar.gz"
+
+          curl --fail-with-body --silent --show-error --location --retry 3 \
+            "$source_url" \
+            --output source.tar.gz
+
+          [[ -s source.tar.gz ]]
+          tar -tzf source.tar.gz > archive-contents.txt
+          grep -Eq '^[^/]+/src/N_m3u8DL-RE/N_m3u8DL-RE\.csproj$' archive-contents.txt
+
+          sha256="$(sha256sum source.tar.gz | awk '{print $1}')"
+          [[ "$sha256" =~ ^[0-9a-f]{64}$ ]]
+
+          echo "source_url=$source_url" >> "$GITHUB_OUTPUT"
+          echo "sha256=$sha256" >> "$GITHUB_OUTPUT"
+
+      - name: Build formula candidate
+        id: candidate
+        run: |
+          set -Eeuo pipefail
+
+          source_url="${{ steps.archive.outputs.source_url }}"
+          sha256="${{ steps.archive.outputs.sha256 }}"
+
+          [[ -n "$source_url" ]]
+          [[ "$sha256" =~ ^[0-9a-f]{64}$ ]]
+          ! grep -Eq '^[[:space:]]*version ' "$FORMULA_PATH"
+
+          sed -i -E "s|^  url \".*\"$|  url \"${source_url}\"|" "$FORMULA_PATH"
+          sed -i -E "s|^  sha256 \".*\"$|  sha256 \"${sha256}\"|" "$FORMULA_PATH"
+
+          grep -Fqx "  url \"${source_url}\"" "$FORMULA_PATH"
+          grep -Fqx "  sha256 \"${sha256}\"" "$FORMULA_PATH"
+          git diff --check
+
+          changed_files="$(git diff --name-only)"
+          if [[ -n "$changed_files" && "$changed_files" != "$FORMULA_PATH" ]]; then
+            echo "Unexpected changed files:" >&2
+            printf '%s\n' "$changed_files" >&2
+            exit 1
+          fi
+
+          unexpected_diff="$({
+            git diff --unified=0 -- "$FORMULA_PATH" \
+              | awk '
+                  /^(---|\+\+\+|@@)/ { next }
+                  /^[+-]/ && $0 !~ /^[+-]  (url|sha256) "/ { print }
+                '
+          })"
+          if [[ -n "$unexpected_diff" ]]; then
+            echo "Unexpected formula changes:" >&2
+            printf '%s\n' "$unexpected_diff" >&2
+            exit 1
+          fi
+
+          if git diff --quiet -- "$FORMULA_PATH"; then
+            changed=false
+          else
+            changed=true
+          fi
+
+          echo "base_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "changed=$changed" >> "$GITHUB_OUTPUT"
+          echo "source_url=$source_url" >> "$GITHUB_OUTPUT"
+          echo "sha256=$sha256" >> "$GITHUB_OUTPUT"
+
+      - name: Upload formula candidate
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: ${{ env.FORMULA_PATH }}
+          if-no-files-found: error
+          retention-days: 1
+
+  test_macos:
+    name: Test on latest macOS
+    needs: prepare
+    runs-on: macos-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout tested revision
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.prepare.outputs.base_sha }}
+
+      - name: Download formula candidate
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: candidate
+
+      - name: Show macOS and toolchain versions
+        run: |
+          sw_vers
+          uname -m
+          brew --version
+          dotnet --version || true
+
+      - name: Validate and install from the tap
+        env:
+          EXPECTED_VERSION: ${{ needs.prepare.outputs.version }}
+        run: |
+          set -Eeuo pipefail
+
+          candidate="candidate/nm3u8dl-re.rb"
+          [[ -f "$candidate" ]]
+
+          brew update
+          brew tap-new --no-git garnajee/perso
+          tap_dir="$(brew --repository garnajee/perso)"
+          cp "$candidate" "$tap_dir/Formula/nm3u8dl-re.rb"
+
+          brew style "$tap_dir/Formula/nm3u8dl-re.rb"
+          if brew trust --help >/dev/null 2>&1; then
+            brew trust --formula garnajee/perso/nm3u8dl-re
+          fi
+          brew readall --no-simulate garnajee/perso
+          brew audit --strict --formula garnajee/perso/nm3u8dl-re
+          brew install --formula --build-from-source garnajee/perso/nm3u8dl-re
+          brew test garnajee/perso/nm3u8dl-re
+          brew linkage --test garnajee/perso/nm3u8dl-re
+
+          linkage_output="$(brew linkage garnajee/perso/nm3u8dl-re)"
+          printf '%s\n' "$linkage_output"
+          if grep -Fq 'Undeclared dependencies with linkage:' <<<"$linkage_output"; then
+            echo "The installed binary has undeclared runtime dependencies" >&2
+            exit 1
+          fi
+
+          formula_version="$(
+            brew info --json=v2 --formula garnajee/perso/nm3u8dl-re \
+              | jq -er '.formulae[0].versions.stable'
+          )"
+          [[ "$formula_version" == "$EXPECTED_VERSION" ]]
+
+          binary="$(brew --prefix garnajee/perso/nm3u8dl-re)/bin/n_m3u8dl-re"
+          [[ -x "$binary" ]]
+          file "$binary"
+
+          version_output="$("$binary" --version 2>&1)"
+          printf '%s\n' "$version_output"
+          grep -F "${EXPECTED_VERSION%%-*}" <<<"$version_output"
+
+  publish:
+    name: Publish tested formula
+    needs:
+      - prepare
+      - test_macos
+    if: ${{ needs.prepare.outputs.changed == 'true' && needs.test_macos.result == 'success' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout target branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Download tested formula
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: candidate
+
+      - name: Commit and push
+        env:
+          BASE_SHA: ${{ needs.prepare.outputs.base_sha }}
+          EXPECTED_SHA256: ${{ needs.prepare.outputs.sha256 }}
+          EXPECTED_SOURCE_URL: ${{ needs.prepare.outputs.source_url }}
+          RELEASE_TAG: ${{ needs.prepare.outputs.tag }}
+        run: |
+          set -Eeuo pipefail
+
+          [[ "$(git rev-parse HEAD)" == "$BASE_SHA" ]]
+          cp candidate/nm3u8dl-re.rb "$FORMULA_PATH"
+
+          grep -Fqx "  url \"${EXPECTED_SOURCE_URL}\"" "$FORMULA_PATH"
+          grep -Fqx "  sha256 \"${EXPECTED_SHA256}\"" "$FORMULA_PATH"
+          ! grep -Eq '^[[:space:]]*version ' "$FORMULA_PATH"
+          git diff --check
+
+          changed_files="$(git diff --name-only)"
+          [[ "$changed_files" == "$FORMULA_PATH" ]]
+
+          unexpected_diff="$({
+            git diff --unified=0 -- "$FORMULA_PATH" \
+              | awk '
+                  /^(---|\+\+\+|@@)/ { next }
+                  /^[+-]/ && $0 !~ /^[+-]  (url|sha256) "/ { print }
+                '
+          })"
+          [[ -z "$unexpected_diff" ]]
+
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add "$FORMULA_PATH"
+          git commit -m "Update nm3u8dl-re Formula to ${RELEASE_TAG}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"

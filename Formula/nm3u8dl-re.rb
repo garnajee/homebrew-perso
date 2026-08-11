@@ -1,12 +1,13 @@
 class Nm3u8dlRe < Formula
   desc "Cross-Platform, modern and powerful stream downloader for MPD/M3U8/ISM"
   homepage "https://github.com/nilaoda/N_m3u8DL-RE"
-  url "https://github.com/nilaoda/N_m3u8DL-RE/archive/refs/tags/.tar.gz"
-  sha256 "172dbbf468f2d83896081a22c4d65964cd0fa3dfda7926bfbd6da8b7d4d91d75"
-  version ""
+  url "https://github.com/nilaoda/N_m3u8DL-RE/archive/refs/tags/v0.6.0-beta.tar.gz"
+  sha256 "7ecaf9614ac7d2897cb9c3d07c02e4ff6e4e19ce327cacbda916e6fb44b67d6d"
   license "MIT"
 
   depends_on "dotnet" => :build
+  depends_on "brotli"
+  depends_on "openssl@3"
 
   def install
     arch = Hardware::CPU.intel? ? "x64" : "arm64"
